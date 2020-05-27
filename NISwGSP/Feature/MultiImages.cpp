@@ -993,6 +993,11 @@ Mat MultiImages::textureMapping(const vector<vector<Point2> > & _vertices,
     const int NO_GRID = -1, TRIANGLE_COUNT = 3, PRECISION = 0;
     const int SCALE = pow(2, PRECISION);
     
+	// 把原图公共区域划分为正方形网格，每个三角形的3个顶点匹配到另一张图的3个点，
+	// 根据这3对点的匹配关系可以算出一个AffineTransform矩阵变换关系。
+	// 有多少个三角形，就有多少个AffineTransform。
+	//	那么就给这些AffineTransform 编个序号，把每个三角形都涂成所在的序号。“涂”用的opencv的函数 fillConvexPoly（）
+	//	涂好序号的矩阵就是 polygon_index_mask
     for(int i = 0; i < images_data.size(); ++i) {
         const vector<Point2> & src_vertices = images_data[i].mesh_2d->getVertices();
         const vector<Indices> & polygons_indices = images_data[i].mesh_2d->getPolygonsIndices();
