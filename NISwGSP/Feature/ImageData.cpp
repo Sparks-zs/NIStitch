@@ -54,11 +54,12 @@ ImageData::ImageData(const string & _file_dir,
     width_filter  = _width_filter;
     length_filter = _length_filter;
     
+	// 读原图
     img = cv::imread(*file_dir + file_name + file_extension);
     rgba_img = cv::imread(*file_dir + file_name + file_extension, cv::IMREAD_UNCHANGED);
     
-    float original_img_size = img.rows * img.cols;
-    
+	// 如果原图分辨率大于DOWN_SAMPLE_IMAGE_SIZE，则resize，否则不resize
+	float original_img_size = img.rows * img.cols;
     if(original_img_size > DOWN_SAMPLE_IMAGE_SIZE) {
         float scale = sqrt(DOWN_SAMPLE_IMAGE_SIZE / original_img_size);
         resize(img, img, cv::Size(), scale, scale);
