@@ -958,6 +958,11 @@ Mat MultiImages::textureMapping(const vector<vector<Point2> > & _vertices,
     return textureMapping(_vertices, _target_size, _blend_method, warp_images);
 }
 
+// 纹理映射，即根据匹配结果，生成全景图
+// _vertices，每张图的matching points在全景图中的匹配点坐标
+// _target_size，全景图大小
+// _blend_method，有平均和加权两种
+// _warp_images，每张原图warp之后的图
 Mat MultiImages::textureMapping(const vector<vector<Point2> > & _vertices,
                                 const Size2 & _target_size,
                                 const BLENDING_METHODS & _blend_method,
@@ -1020,6 +1025,9 @@ Mat MultiImages::textureMapping(const vector<vector<Point2> > & _vertices,
                 ++label;
             }
         }
+
+		// 对原图进行warp。原图存放在images_data[i].img中，
+		// warp之后的图为image，最后放在_warp_images中。
         Mat image = Mat::zeros(rects[i].height + shift.y, rects[i].width + shift.x, CV_8UC4);
         Mat w_mask = (_blend_method != BLEND_AVERAGE) ? Mat::zeros(image.size(), CV_32FC1) : Mat();
         for(int y = 0; y < image.rows; ++y) {

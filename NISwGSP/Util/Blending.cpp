@@ -28,6 +28,12 @@ vector<cv::Mat> getMatsLinearBlendWeight(const vector<cv::Mat> & images) {
     return result;
 }
 
+// 图像融合
+// images，经过warp之后的图像
+// origin，images中每张图像在全景图中的左上角点坐标
+// target_size，全景图大小
+// weight_mask，做图像融合的权重
+// ignore_weight_mask，如果是BLEND_AVERAGE，则忽略，如果是BLEND_LINEAR，则使用weight_mask
 cv::Mat Blending(const vector<cv::Mat> & images,
              const vector<Point2> & origins,
              const Size2 target_size,
@@ -46,16 +52,17 @@ cv::Mat Blending(const vector<cv::Mat> & images,
             cv::Point2i p(x, y);
             cv::Vec3f pixel_sum(0, 0, 0);
             float weight_sum = 0.f;
+			// 对每个像素，只要它在原图中是可见的，都要求平均（这样会造成图像模糊）
             for(int i = 0; i < rects.size(); ++i) {
                 cv::Point2i pv(round(x - origins[i].x), round(y - origins[i].y));
-                if(pv.x >= 0 && pv.x < images[i].cols &&
+				if(pv.x >= 0 && pv.x < images[i].cols &&
                    pv.y >= 0 && pv.y < images[i].rows) {
                     cv::Vec4b v = images[i].at<cv::Vec4b>(pv);
                     cv::Vec3f value = cv::Vec3f(v[0], v[1], v[2]);
                     if(ignore_weight_mask) {
                         if(v[3] > 127) {
                             pixel_sum += value;
-                            weight_sum += 1.f;
+                            weight_sum += 1.f; // 权重为1，即表示求平均
                         }
                     } else {
                         float weight = weight_mask[i].at<float>(pv);
@@ -65,7 +72,7 @@ cv::Mat Blending(const vector<cv::Mat> & images,
                 }
             }
             if(weight_sum) {
-                pixel_sum /= weight_sum;
+                pixel_sum /= weight_sum; // 求加权平均
                 result.at<cv::Vec4b>(p) = cv::Vec4b(round(pixel_sum[0]), round(pixel_sum[1]), round(pixel_sum[2]), 255);
             }
         }

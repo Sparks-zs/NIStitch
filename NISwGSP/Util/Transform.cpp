@@ -96,6 +96,8 @@ cv::Point_<T> applyTransform2x3(T x, T y, const cv::Mat & matT) {
                      (matT.at<double>(1, 0) * x + matT.at<double>(1, 1) * y + matT.at<double>(1, 2)));
 }
 
+// 求所有vertice的最小、最大坐标，所有顶点坐标都减去最小值，作为规格化的值
+// 最大值减最小值，作为全景图的大小
 template <typename T>
 cv::Size_<T> normalizeVertices(vector<vector<cv::Point_<T> > > & vertices) {
     T min_x = std::numeric_limits<T>::max(), max_x = -std::numeric_limits<T>::max();
